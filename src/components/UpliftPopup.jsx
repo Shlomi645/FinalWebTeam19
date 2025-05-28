@@ -54,7 +54,7 @@ export default function UpliftPopup() {
         >
           <button
             onClick={handleClose}
-            className="absolute top-1 right-2 text-xs text-purple-700 hover:underline"
+            className=" absolute top-1 right-2 text-xs text-purple-700 hover:underline"
           >
             ✕
           </button>

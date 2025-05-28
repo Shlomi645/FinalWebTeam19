@@ -40,7 +40,7 @@ export default function UpliftCard() {
           <p className="text-sm text-purple-700 mb-3">Get your daily dose of motivation!</p>
           <button
             onClick={getUpliftSentence}
-            className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-1.5 px-4 rounded-full transition"
+            className="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-1.5 px-4 rounded-full transition"
           >
             {loading ? "Loading..." : "Get Motivated!"}
           </button>

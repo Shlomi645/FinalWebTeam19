@@ -116,7 +116,71 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+ body {
+    @apply min-h-screen bg-gradient-to-br from-white to-blue-100 text-black;
   }
+
+.dark body {
+  background: linear-gradient(to bottom right, #111827, #000000); 
+  color: #f9fafb;
+}
+
+}
+
+.btn {
+  @apply px-4 py-2 rounded font-medium transition-colors cursor-pointer;
+  @apply bg-gray-50 text-gray-800 dark:bg-gray-700 dark:text-white ;
+
+}
+
+.btn:hover {
+  @apply bg-blue-500 text-white;
+}
+
+.btn-active {
+  @apply bg-blue-600 text-white;
+}
+
+.btn2 {
+  @apply px-4 py-2 rounded font-medium transition-colors cursor-pointer;
+  @apply bg-gray-50 text-gray-800 dark:bg-gray-700 dark:text-white;
+}
+
+.btn2:hover {
+  @apply bg-blue-500 text-white;
+}
+
+.btn2-active {
+  @apply bg-blue-600 text-white;
+}
+
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fade-out 0.4s ease-in forwards;
 }

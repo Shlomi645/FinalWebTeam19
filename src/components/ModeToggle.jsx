@@ -16,7 +16,7 @@ export function ModeToggle() {
   if (!mounted) return null // Wait until client is mounted to render
 
   return (
-    <Button
+    <Button className="btn2"
       variant="outline"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
