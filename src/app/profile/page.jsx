@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
@@ -41,6 +42,7 @@ export default function ProfilePage() {
     e.preventDefault();
 
     if (userData.age && (userData.age < 10 || userData.age > 120)) {
+      toast.error("Please enter a valid age between 10 and 120.");
       alert("Please enter a valid age between 10 and 120.");
       return;
     }
