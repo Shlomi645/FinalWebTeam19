@@ -1,4 +1,3 @@
-// DesktopNavbar.jsx
 "use client";
 
 import React from "react";
@@ -15,6 +14,7 @@ import { ModeToggle } from "./ModeToggle";
 import { useAuthUser } from "@/hooks/useAuthUser";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import UpliftPopup from "@/components/UpliftPopup";
 
 function DesktopNavbar() {
   const { user } = useAuthUser();
@@ -58,15 +58,17 @@ function DesktopNavbar() {
         </Link>
       </Button>
 
-      {/* 👇 Only show on smaller screens where sidebar is hidden */}
-      <div className="lg:hidden">
+      {/* 👇 Auth buttons and uplift only visible if sidebar is hidden (lg:hidden) */}
+      <div className="lg:hidden flex items-center gap-2">
+        {user && <UpliftPopup />}
+
         {user ? (
-          <Button variant="destructive" className="ml-4" onClick={() => signOut(auth)}>
+          <Button variant="destructive" onClick={() => signOut(auth)}>
             Logout
           </Button>
         ) : (
           <>
-            <Button variant="outline" className="ml-4" asChild>
+            <Button variant="outline" asChild>
               <Link href="/signin">Login</Link>
             </Button>
             <Button variant="default" asChild>

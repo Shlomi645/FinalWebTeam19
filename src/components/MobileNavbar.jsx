@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   BellIcon,
   HeadsetIcon,
@@ -10,25 +10,26 @@ import {
   SunIcon,
   UserIcon,
   ShellIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-import Link from "next/link"
-import { useAuthUser } from "@/hooks/useAuthUser"
-import { signOut } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+} from "@/components/ui/sheet";
+import Link from "next/link";
+import { useAuthUser } from "@/hooks/useAuthUser";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import UpliftPopup from "@/components/UpliftPopup";
 
 function MobileNavbar() {
-  const { theme, setTheme } = useTheme()
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const { user } = useAuthUser()
+  const { theme, setTheme } = useTheme();
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { user } = useAuthUser();
 
   return (
     <div className="flex md:hidden items-center space-x-2">
@@ -85,6 +86,12 @@ function MobileNavbar() {
               </Link>
             </Button>
 
+            {user && (
+              <div className="px-2">
+                <UpliftPopup />
+              </div>
+            )}
+
             {user ? (
               <Button
                 variant="destructive"
@@ -107,7 +114,7 @@ function MobileNavbar() {
         </SheetContent>
       </Sheet>
     </div>
-  )
+  );
 }
 
-export default MobileNavbar
+export default MobileNavbar;

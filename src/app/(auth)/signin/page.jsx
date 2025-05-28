@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,10 +20,13 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Login successful!");
-      router.push("/");
+      toast.success("Login successful!");
+      // Redirect after toast
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      toast.error(error.message);
     }
   };
 

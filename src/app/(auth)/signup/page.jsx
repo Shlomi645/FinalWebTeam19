@@ -9,11 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const router = useRouter();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -38,9 +41,14 @@ export default function SignUp() {
       };
 
       await setDoc(doc(db, "users", user.uid), userProfile);
-      alert("User registered successfully!");
+      toast.success("Account created successfully!");
+
+      // Redirect after toast
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      toast.error(error.message);
     }
   };
 
