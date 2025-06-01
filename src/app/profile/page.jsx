@@ -11,11 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-hot-toast";
+import UploadProfileImage from "@/components/UploadProfileImage";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,16 +45,16 @@ export default function ProfilePage() {
 
     if (userData.age && (userData.age < 10 || userData.age > 120)) {
       toast.error("Please enter a valid age between 10 and 120.");
-      alert("Please enter a valid age between 10 and 120.");
       return;
     }
 
     try {
       await updateDoc(doc(db, "users", userData.uid), userData);
       setUser(userData); // ✅ Update global state
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (err) {
-      alert("Error updating profile: " + err.message);
+      toast.error("Error updating profile.");
+      console.error(err);
     }
   };
 
@@ -65,30 +67,68 @@ export default function ProfilePage() {
           <CardTitle className="text-3xl font-bold">Edit Profile</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Profile Image Section */}
+          <div className="flex flex-col items-center gap-3 mb-6">
+            <img
+              src={
+                userData.image ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  userData.fullName || "User"
+                )}&background=random`
+              }
+              alt="Profile"
+              className="w-28 h-28 rounded-full object-cover border"
+            />
+            <Button variant="outline" onClick={() => setUploadModalOpen(true)}>
+              Change Profile Picture
+            </Button>
+          </div>
+
+          {/* Profile Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" value={userData.fullName} onChange={(e) => handleChange("fullName", e.target.value)} />
+              <Input
+                id="fullName"
+                value={userData.fullName}
+                onChange={(e) => handleChange("fullName", e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
-              <Input id="location" value={userData.location} onChange={(e) => handleChange("location", e.target.value)} />
+              <Input
+                id="location"
+                value={userData.location}
+                onChange={(e) => handleChange("location", e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
-              <Input id="website" value={userData.website} onChange={(e) => handleChange("website", e.target.value)} />
+              <Input
+                id="website"
+                value={userData.website}
+                onChange={(e) => handleChange("website", e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="faculty">Faculty</Label>
-              <Input id="faculty" value={userData.faculty} onChange={(e) => handleChange("faculty", e.target.value)} />
+              <Input
+                id="faculty"
+                value={userData.faculty}
+                onChange={(e) => handleChange("faculty", e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="institution">Institution</Label>
-              <Input id="institution" value={userData.institution} onChange={(e) => handleChange("institution", e.target.value)} />
+              <Input
+                id="institution"
+                value={userData.institution}
+                onChange={(e) => handleChange("institution", e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
@@ -118,6 +158,13 @@ export default function ProfilePage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Image Upload Modal */}
+      <UploadProfileImage
+        open={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onUpload={(newImage) => setUserData((prev) => ({ ...prev, image: newImage }))}
+      />
     </div>
   );
 }

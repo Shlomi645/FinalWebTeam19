@@ -6,57 +6,73 @@ import {
   addDoc,
   onSnapshot,
   orderBy,
-  query,
   updateDoc,
   deleteDoc,
   doc,
   arrayUnion,
   arrayRemove,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import toast from "react-hot-toast";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function CommentSection({ postId, user }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "posts", postId, "comments"),
-      orderBy("timestamp", "asc")
-    );
+    const q = collection(db, "posts", postId, "comments");
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setComments(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      const sorted = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => a.timestamp?.seconds - b.timestamp?.seconds);
+      setComments(sorted);
     });
     return () => unsubscribe();
   }, [postId]);
 
-  const toggleLikeComment = async (commentId, hasLiked) => {
-    const commentRef = doc(db, "posts", postId, "comments", commentId);
+  const handleComment = async (e) => {
+    e.preventDefault();
+    if (!comment.trim()) {
+      toast.error("Please write a comment.");
+      return;
+    }
+
     try {
-      await updateDoc(commentRef, {
-        likes: hasLiked ? arrayRemove(user.uid) : arrayUnion(user.uid),
+      await addDoc(collection(db, "posts", postId, "comments"), {
+        uid: user.uid,
+        displayName: user.fullName || user.email,
+        photoURL:
+          user.image ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            user.fullName || "User"
+          )}&background=random`,
+        content: comment,
+        timestamp: serverTimestamp(),
+        likes: [],
       });
+
+      setComment("");
+      toast.success("Comment posted!");
     } catch (err) {
-      console.error("Error toggling comment like:", err);
+      console.error(err);
+      toast.error("Failed to post comment.");
     }
   };
 
-  const handleComment = async (e) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    await addDoc(collection(db, "posts", postId, "comments"), {
-      uid: user.uid,
-      displayName: user.fullName || user.email,
-      content: comment,
-      timestamp: new Date(),
+  const toggleLikeComment = async (commentId, hasLiked) => {
+    const commentRef = doc(db, "posts", postId, "comments", commentId);
+    await updateDoc(commentRef, {
+      likes: hasLiked ? arrayRemove(user.uid) : arrayUnion(user.uid),
     });
-
-    setComment("");
   };
 
   const deleteComment = async (commentId) => {
-    const confirm = window.confirm("Are you sure you want to delete this comment?");
+    const confirm = window.confirm("Delete this comment?");
     if (!confirm) return;
 
     try {
@@ -67,59 +83,59 @@ export default function CommentSection({ postId, user }) {
   };
 
   return (
-    <div className="mt-4 border-t pt-2">
-      <form onSubmit={handleComment} className="flex gap-2 mb-2">
-        <input
+    <div className="mt-6">
+      <form onSubmit={handleComment} className="flex gap-2 mb-4">
+        <Input
           type="text"
+          placeholder="Write a comment..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Write a comment"
-          className="flex-1 p-2 border rounded bg-white text-black dark:bg-gray-900 dark:text-white"
         />
-        <button
-          type="submit"
-          className="btn bg-blue-500 text-white text-sm px-2 py-1 rounded hover:bg-blue-600 transition"
-        >
-          Add Comment
-        </button>
+        <Button type="submit">Comment</Button>
       </form>
 
-      <div className="space-y-1">
+      <div className="space-y-4">
         {comments.map((c) => (
           <div
             key={c.id}
-            className="text-sm border rounded p-2 bg-gray-50 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+            className="rounded-md border p-3 bg-background shadow-sm text-sm space-y-1"
           >
-            <div>
-              <strong>{c.displayName}:</strong> {c.content}
-              <div className="text-xs text-gray-400 mt-1">
-                {c.timestamp?.toDate
-                  ? c.timestamp.toDate().toLocaleString()
-                  : "just now"}
+            <div className="flex items-center gap-3">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={c.photoURL} />
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex justify-between">
+                  <strong className="text-foreground">{c.displayName}</strong>
+                  <span className="text-xs text-muted-foreground">
+                    {c.timestamp?.toDate
+                      ? c.timestamp.toDate().toLocaleString()
+                      : "just now"}
+                  </span>
+                </div>
+                <p className="text-foreground">{c.content}</p>
               </div>
             </div>
 
-            <div className="mt-1 flex gap-2 items-center">
-              <button
-                className={`btn text-xs px-2 py-0.5 rounded transition ${
-                  c.likes?.includes(user.uid)
-                    ? "bg-pink-100 text-pink-700 dark:bg-pink-400 dark:text-white"
-                    : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-white"
-                }`}
-                onClick={() =>
-                  toggleLikeComment(c.id, c.likes?.includes(user.uid))
-                }
+            <Separator className="my-2" />
+
+            <div className="flex items-center gap-2 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toggleLikeComment(c.id, c.likes?.includes(user.uid))}
               >
                 ❤️ {c.likes?.length || 0}
-              </button>
+              </Button>
 
               {user.uid === c.uid && (
-                <button
+                <Button
+                  size="sm"
+                  variant="destructive"
                   onClick={() => deleteComment(c.id)}
-                  className=" btn text-xs text-red-600 "
                 >
                   🗑️ Delete
-                </button>
+                </Button>
               )}
             </div>
           </div>
