@@ -5,7 +5,6 @@ import {
   collection,
   addDoc,
   onSnapshot,
-  orderBy,
   updateDoc,
   deleteDoc,
   doc,
@@ -18,9 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
-export default function CommentSection({ postId, user }) {
+export default function AnonymousCommentSection({ postId, user }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
 
@@ -45,12 +43,7 @@ export default function CommentSection({ postId, user }) {
     try {
       await addDoc(collection(db, "posts", postId, "comments"), {
         uid: user.uid,
-        displayName: user.fullName || user.email,
-        photoURL:
-          user.image ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            user.fullName || "User"
-          )}&background=random`,
+        displayName: "Anonymous User",
         content: comment,
         timestamp: serverTimestamp(),
         likes: [],
@@ -77,10 +70,11 @@ export default function CommentSection({ postId, user }) {
 
     try {
       await deleteDoc(doc(db, "posts", postId, "comments", commentId));
+      toast.success("Comment deleted.");
     } catch (err) {
       console.error("Error deleting comment:", err);
+      toast.error("Failed to delete comment.");
     }
-    toast.success("Comment deleted successfully!");
   };
 
   return (
@@ -102,12 +96,14 @@ export default function CommentSection({ postId, user }) {
             className="rounded-md border p-3 bg-background shadow-sm text-sm space-y-1"
           >
             <div className="flex items-center gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={c.photoURL} />
-              </Avatar>
+              <img
+                src="/defaultUserLogo.jpg"
+                alt="Anonymous"
+                className="w-8 h-8 rounded-full object-cover"
+              />
               <div className="flex-1">
                 <div className="flex justify-between">
-                  <strong className="text-foreground">{c.displayName}</strong>
+                  <strong className="text-foreground">Anonymous User</strong>
                   <span className="text-xs text-muted-foreground">
                     {c.timestamp?.toDate
                       ? c.timestamp.toDate().toLocaleString()
@@ -124,7 +120,9 @@ export default function CommentSection({ postId, user }) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => toggleLikeComment(c.id, c.likes?.includes(user.uid))}
+                onClick={() =>
+                  toggleLikeComment(c.id, c.likes?.includes(user.uid))
+                }
               >
                 ❤️ {c.likes?.length || 0}
               </Button>

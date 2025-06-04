@@ -11,9 +11,11 @@ import UpliftCard from "./UpliftCard";
 import { Button } from "./ui/button";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation"; // ⬅️ Import useRouter
 
 export default function Sidebar() {
   const { user, loading } = useAuth();
+  const router = useRouter(); // ⬅️ Initialize router
 
   if (loading) return null;
   if (!user) return <UnAuthenticatedSidebar />;
@@ -21,6 +23,11 @@ export default function Sidebar() {
   const fallbackImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     user.fullName || "User"
   )}&background=random`;
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/"); // ⬅️ Redirect to home page after logout
+  };
 
   return (
     <div className="sticky top-20">
@@ -34,7 +41,6 @@ export default function Sidebar() {
                   <Avatar className="w-20 h-20 border-2">
                     <AvatarImage src={user.image || fallbackImage} alt="Profile" />
                   </Avatar>
-
                   <div className="mt-4 space-y-1">
                     <h3 className="font-semibold">{user.fullName}</h3>
                     <p className="text-sm text-muted-foreground">
@@ -71,7 +77,7 @@ export default function Sidebar() {
                 <Button
                   variant="destructive"
                   className="w-full"
-                  onClick={() => signOut(auth)}
+                  onClick={handleLogout} // ⬅️ Use handleLogout
                 >
                   Logout
                 </Button>

@@ -30,12 +30,12 @@ function DesktopNavbar() {
         </Link>
       </Button>
 
-      <Button variant="ghost" className="btn2 flex items-center gap-2" asChild>
+      {/* <Button variant="ghost" className="btn2 flex items-center gap-2" asChild>
         <Link href="/notifications">
           <BellIcon className="w-4 h-4" />
           <span className="hidden lg:inline">Notifications</span>
         </Link>
-      </Button>
+      </Button> maybe later */}
 
       <Button variant="ghost" className="btn2 flex items-center gap-2" asChild>
         <Link href="/profile">

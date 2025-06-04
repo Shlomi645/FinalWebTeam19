@@ -17,17 +17,13 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-
-import MainForumNavbar from "@/components/MainForumNavbar";
 import CreatePost from "@/components/CreatePost";
-import Post from "@/components/Post";
-import AnonymousForum from "@/components/AnonymousForum";  // 🔥 Import AnonymousForum
+import AnonymousPost from "@/components/AnonymousPost";
 import toast from "react-hot-toast";
 
-export default function Forum() {
+export default function AnonymousForum() {
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     if (!user) return;
@@ -60,12 +56,8 @@ export default function Forum() {
   const handleCreatePost = async ({ title, content, category }) => {
     await addDoc(collection(db, "posts"), {
       uid: user.uid,
-      displayName: user.fullName || user.email,
-      authorImage:
-        user.image ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          user.fullName || "User"
-        )}&background=random`,
+      displayName: "Anonymous", // store but not displayed
+      authorImage: "", // hide avatar
       title,
       content,
       category,
@@ -87,9 +79,7 @@ export default function Forum() {
 
     const commentsRef = collection(db, "posts", postId, "comments");
     const commentsSnap = await getDocs(commentsRef);
-    const deletePromises = commentsSnap.docs.map((docSnap) =>
-      deleteDoc(docSnap.ref)
-    );
+    const deletePromises = commentsSnap.docs.map((docSnap) => deleteDoc(docSnap.ref));
     await Promise.all(deletePromises);
     await deleteDoc(doc(db, "posts", postId));
     toast.success("Post deleted successfully!");
@@ -105,40 +95,17 @@ export default function Forum() {
     );
   }
 
-  // 🔥 Switch between Main Forum and AnonymousForum
-  if (selectedCategory === "Anonymous") {
-    return (
-      <div className="max-w-3xl mx-auto p-6 space-y-6">
-        <MainForumNavbar
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-        />
-        <AnonymousForum />
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <MainForumNavbar
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
       <CreatePost
         onSubmit={handleCreatePost}
         user={user}
-        selectedCategory={selectedCategory === "All" ? "Main" : selectedCategory}
+        selectedCategory="Anonymous"
       />
       {posts
-        .filter((post) => {
-          if (selectedCategory === "All") {
-            return post.category === "Main";
-          } else {
-            return post.category === selectedCategory;
-          }
-        })
+        .filter((post) => post.category === "Anonymous")
         .map((post) => (
-          <Post
+          <AnonymousPost
             key={post.id}
             post={post}
             user={user}

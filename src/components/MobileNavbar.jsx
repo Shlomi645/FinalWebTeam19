@@ -25,11 +25,23 @@ import { useAuthUser } from "@/hooks/useAuthUser";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import UpliftPopup from "@/components/UpliftPopup";
+import { useRouter } from "next/navigation";
 
-function MobileNavbar() {
+export default function MobileNavbar() {
   const { theme, setTheme } = useTheme();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { user } = useAuthUser();
+  const router = useRouter();
+
+  const handleNavClick = () => {
+    setShowMobileMenu(false);
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/");
+    setShowMobileMenu(false);
+  };
 
   return (
     <div className="flex md:hidden items-center space-x-2">
@@ -55,31 +67,56 @@ function MobileNavbar() {
             <SheetTitle>Menu</SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col space-y-4 mt-6">
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+              onClick={handleNavClick}
+            >
               <Link href="/">
                 <HomeIcon className="w-4 h-4" />
                 Home
               </Link>
             </Button>
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            {/* <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+              onClick={handleNavClick}
+            >
               <Link href="/notifications">
                 <BellIcon className="w-4 h-4" />
                 Notifications
               </Link>
-            </Button>
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            </Button>  maybe later */} 
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+              onClick={handleNavClick}
+            >
               <Link href="/profile">
                 <UserIcon className="w-4 h-4" />
                 Profile
               </Link>
             </Button>
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+              onClick={handleNavClick}
+            >
               <Link href="/about-us">
                 <ShellIcon className="w-4 h-4" />
                 About Us
               </Link>
             </Button>
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+              onClick={handleNavClick}
+            >
               <Link href="/contact">
                 <HeadsetIcon className="w-4 h-4" />
                 Contact
@@ -96,16 +133,26 @@ function MobileNavbar() {
               <Button
                 variant="destructive"
                 className="flex items-center gap-3 justify-start"
-                onClick={() => signOut(auth)}
+                onClick={handleLogout}
               >
                 Logout
               </Button>
             ) : (
               <>
-                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-3 justify-start"
+                  asChild
+                  onClick={handleNavClick}
+                >
                   <Link href="/signin">Login</Link>
                 </Button>
-                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-3 justify-start"
+                  asChild
+                  onClick={handleNavClick}
+                >
                   <Link href="/signup">Sign Up</Link>
                 </Button>
               </>
@@ -116,5 +163,3 @@ function MobileNavbar() {
     </div>
   );
 }
-
-export default MobileNavbar;

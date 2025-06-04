@@ -163,7 +163,10 @@ export default function ProfilePage() {
       <UploadProfileImage
         open={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
-        onUpload={(newImage) => setUserData((prev) => ({ ...prev, image: newImage }))}
+        onUpload={(newImage) => {
+          setUserData((prev) => ({ ...prev, image: newImage }));
+          setUser((prev) => ({ ...prev, image: newImage })); // ✅ update global state
+        }}
       />
     </div>
   );

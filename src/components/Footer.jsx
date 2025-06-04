@@ -16,7 +16,7 @@ export default function Footer() {
                 <li>Shachar Nahum</li>
                 <li>Noy Ben Ezra</li>
                 <li>Eitan Zarbel</li>
-                <li>Alex Grussman</li>
+                <li>Alexander Gruman</li>
                 <li>Yovel Katz</li>
               </ul>
             </div>

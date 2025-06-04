@@ -1,6 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
+before all:
+create file inside the !project folder! called ".env.local"
+inside there add this following line:
+"CLOUDINARY_URL=cloudinary://542555544516639:SXrYdVOKcuWHeuOB4MYtfNwaC7U@dmp8nvzma"
+
+Then install via this commands:
+npm install
+npm install firebase
+npm install cloudinary
 
 First, run the development server:
 
