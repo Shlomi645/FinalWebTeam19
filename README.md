@@ -4,7 +4,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 before all:
 create file inside the !project folder! called ".env.local"
 inside there add this following line:
-"CLOUDINARY_URL=cloudinary://542555544516639:SXrYdVOKcuWHeuOB4MYtfNwaC7U@dmp8nvzma"
+"CLOUDINARY_URL=cloudinary://542555544516639:SXrYdVOKcuWHeuOB4MYtfNwaC7U@dmp8nvzma
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dmp8nvzma
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=profile_pictures"
 
 Then install via this commands:
 npm install
