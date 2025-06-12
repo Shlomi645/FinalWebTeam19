@@ -17,10 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
 export default function AnonymousCommentSection({ postId, user }) {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   useEffect(() => {
     const q = collection(db, "posts", postId, "comments");
@@ -65,8 +68,7 @@ export default function AnonymousCommentSection({ postId, user }) {
   };
 
   const deleteComment = async (commentId) => {
-    const confirm = window.confirm("Delete this comment?");
-    if (!confirm) return;
+    if (!confirm("Delete this comment?")) return;
 
     try {
       await deleteDoc(doc(db, "posts", postId, "comments", commentId));
@@ -77,15 +79,35 @@ export default function AnonymousCommentSection({ postId, user }) {
     }
   };
 
+  const handleEmojiSelect = (emoji) => {
+    setComment((prev) => prev + emoji.native);
+  };
+
   return (
     <div className="mt-6">
-      <form onSubmit={handleComment} className="flex gap-2 mb-4">
+      <form onSubmit={handleComment} className="flex gap-2 mb-4 relative">
         <Input
           type="text"
           placeholder="Write a comment..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
+        {/* Emoji button only on desktop */}
+        <div className="hidden md:block relative">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowEmojiPicker((prev) => !prev)}
+          >
+            😊
+          </Button>
+          {showEmojiPicker && (
+            <div className="absolute z-50 top-10 right-0">
+              <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+            </div>
+          )}
+        </div>
         <Button type="submit">Comment</Button>
       </form>
 
@@ -120,6 +142,11 @@ export default function AnonymousCommentSection({ postId, user }) {
               <Button
                 size="sm"
                 variant="outline"
+                className={`px-2 py-1 ${
+                  c.likes?.includes(user.uid)
+                    ? "bg-pink-100 text-pink-700 dark:bg-pink-400 dark:text-white"
+                    : ""
+                }`}
                 onClick={() =>
                   toggleLikeComment(c.id, c.likes?.includes(user.uid))
                 }

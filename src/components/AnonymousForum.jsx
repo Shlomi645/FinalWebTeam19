@@ -53,14 +53,15 @@ export default function AnonymousForum() {
     return () => unsubscribe();
   }, [user]);
 
-  const handleCreatePost = async ({ title, content, category }) => {
+  const handleCreatePost = async ({ title, content, category, imageUrl }) => {
     await addDoc(collection(db, "posts"), {
       uid: user.uid,
-      displayName: "Anonymous", // store but not displayed
-      authorImage: "", // hide avatar
+      displayName: "Anonymous",
+      authorImage: "",
       title,
       content,
       category,
+      imageUrl: imageUrl || null,
       timestamp: serverTimestamp(),
       likes: [],
     });

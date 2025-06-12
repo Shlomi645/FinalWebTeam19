@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  getDoc,
   serverTimestamp,
   arrayUnion,
   arrayRemove,
@@ -21,7 +22,7 @@ import { useAuth } from "@/context/AuthContext";
 import MainForumNavbar from "@/components/MainForumNavbar";
 import CreatePost from "@/components/CreatePost";
 import Post from "@/components/Post";
-import AnonymousForum from "@/components/AnonymousForum";  // 🔥 Import AnonymousForum
+import AnonymousForum from "@/components/AnonymousForum";
 import toast from "react-hot-toast";
 
 export default function Forum() {
@@ -57,7 +58,7 @@ export default function Forum() {
     return () => unsubscribe();
   }, [user]);
 
-  const handleCreatePost = async ({ title, content, category }) => {
+  const handleCreatePost = async ({ title, content, category, imageUrl }) => {
     await addDoc(collection(db, "posts"), {
       uid: user.uid,
       displayName: user.fullName || user.email,
@@ -69,6 +70,7 @@ export default function Forum() {
       title,
       content,
       category,
+      imageUrl: imageUrl || null,
       timestamp: serverTimestamp(),
       likes: [],
     });
@@ -85,13 +87,38 @@ export default function Forum() {
     const confirm = window.confirm("Are you sure you want to delete this post?");
     if (!confirm) return;
 
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    const postData = postSnap.data();
+
+    // 🧼 Delete image from Cloudinary if it exists
+    if (postData?.imageUrl) {
+      try {
+        const publicId = postData.imageUrl
+          .split("/")
+          .pop()
+          .split(".")[0]; // extract image public ID
+
+        await fetch("/api/delete-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ publicId }),
+        });
+      } catch (error) {
+        console.error("Image deletion failed:", error);
+      }
+    }
+
+    // 🗑️ Delete comments
     const commentsRef = collection(db, "posts", postId, "comments");
     const commentsSnap = await getDocs(commentsRef);
     const deletePromises = commentsSnap.docs.map((docSnap) =>
       deleteDoc(docSnap.ref)
     );
     await Promise.all(deletePromises);
-    await deleteDoc(doc(db, "posts", postId));
+
+    // Delete the post itself
+    await deleteDoc(postRef);
     toast.success("Post deleted successfully!");
   };
 
@@ -105,7 +132,6 @@ export default function Forum() {
     );
   }
 
-  // 🔥 Switch between Main Forum and AnonymousForum
   if (selectedCategory === "Anonymous") {
     return (
       <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -130,13 +156,11 @@ export default function Forum() {
         selectedCategory={selectedCategory === "All" ? "Main" : selectedCategory}
       />
       {posts
-        .filter((post) => {
-          if (selectedCategory === "All") {
-            return post.category === "Main";
-          } else {
-            return post.category === selectedCategory;
-          }
-        })
+        .filter((post) =>
+          selectedCategory === "All"
+            ? post.category === "Main"
+            : post.category === selectedCategory
+        )
         .map((post) => (
           <Post
             key={post.id}

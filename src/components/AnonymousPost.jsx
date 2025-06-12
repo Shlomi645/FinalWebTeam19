@@ -1,16 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import AnonymousCommentSection from "@/components/AnonymousCommentSection";
 
 export default function AnonymousPost({ post, user, onLike, onDelete }) {
+  const [open, setOpen] = useState(false);
   const hasLiked = post.likes?.includes(user.uid);
 
   return (
     <Card>
-      {/* Header */}
       <CardHeader className="flex gap-4 items-center">
         <img
           src="/defaultUserLogo.jpg"
@@ -27,12 +30,39 @@ export default function AnonymousPost({ post, user, onLike, onDelete }) {
           </p>
         </div>
       </CardHeader>
-      {/* Post Content */}
+
       <CardContent className="space-y-4">
         <p>{post.content}</p>
         <Separator />
 
-        {/* Like & Delete Buttons */}
+        {post.imageUrl && (
+          <>
+            <div
+              className="w-full overflow-hidden rounded border border-gray-200 dark:border-gray-700 cursor-zoom-in"
+              onClick={() => setOpen(true)}
+            >
+              <img
+                src={post.imageUrl}
+                alt="Anonymous Post"
+                className="w-full max-h-[500px] object-contain"
+              />
+            </div>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
+                <DialogTitle>
+                  <VisuallyHidden>Anonymous post image</VisuallyHidden>
+                </DialogTitle>
+                <img
+                  src={post.imageUrl}
+                  alt="Zoomed"
+                  className="w-full h-auto max-h-[90vh] object-contain rounded"
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
+
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
@@ -58,7 +88,6 @@ export default function AnonymousPost({ post, user, onLike, onDelete }) {
           )}
         </div>
 
-        {/* Anonymous Comments */}
         <AnonymousCommentSection postId={post.id} user={user} />
       </CardContent>
     </Card>

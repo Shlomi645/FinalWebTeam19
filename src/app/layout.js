@@ -53,7 +53,7 @@ export default function RootLayout({ children }) {
               </div>
             </main>
 
-       <Footer></Footer>
+       <Footer />
             
           </AuthProvider>
         </ThemeProvider>
